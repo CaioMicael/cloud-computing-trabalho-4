@@ -1,8 +1,9 @@
+using cloud_computing_trabalho_4.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddScoped<IEventoService, EventoService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();

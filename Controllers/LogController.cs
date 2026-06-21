@@ -1,6 +1,5 @@
-using cloud_computing_trabalho_4.DTO;
+using cloud_computing_trabalho_4.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace cloud_computing_trabalho_4.Controllers
 {
@@ -8,27 +7,17 @@ namespace cloud_computing_trabalho_4.Controllers
     [Route("log")]
     public class LogController : ControllerBase
     {
-        private static readonly string DataPath = Path.Combine(
-            AppContext.BaseDirectory, "Data", "eventos.json");
+        private readonly IEventoService _eventoService;
 
-        private static readonly JsonSerializerOptions JsonOptions = new()
+        public LogController(IEventoService eventoService)
         {
-            PropertyNameCaseInsensitive = true
-        };
-
-        private List<EventoSeguranca> CarregarEventos()
-        {
-            if (!System.IO.File.Exists(DataPath))
-                return [];
-
-            var json = System.IO.File.ReadAllText(DataPath);
-            return JsonSerializer.Deserialize<List<EventoSeguranca>>(json, JsonOptions) ?? [];
+            _eventoService = eventoService;
         }
 
         [HttpGet("eventos")]
         public IActionResult GetEventos()
         {
-            var eventos = CarregarEventos();
+            var eventos = _eventoService.ObterEventos();
 
             if (eventos.Count == 0)
                 return NoContent();
@@ -39,7 +28,7 @@ namespace cloud_computing_trabalho_4.Controllers
         [HttpGet("eventos/{id:int}")]
         public IActionResult GetEventoPorId(int id)
         {
-            var eventos = CarregarEventos();
+            var eventos = _eventoService.ObterEventos();
             var evento = eventos.FirstOrDefault(e => e.Id == id);
 
             if (evento is null)
