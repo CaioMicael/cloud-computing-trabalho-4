@@ -14,6 +14,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="TestesUnitarios\**" />
+    <Content Remove="TestesUnitarios\**" />
+    <EmbeddedResource Remove="TestesUnitarios\**" />
+    <None Remove="TestesUnitarios\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="Data\eventos.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
