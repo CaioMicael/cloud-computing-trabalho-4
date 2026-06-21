@@ -29,6 +29,10 @@ namespace cloud_computing_trabalho_4.Controllers
         public IActionResult GetEventos()
         {
             var eventos = CarregarEventos();
+
+            if (eventos.Count == 0)
+                return NoContent();
+
             return Ok(eventos);
         }
 
