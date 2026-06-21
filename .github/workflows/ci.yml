@@ -1,0 +1,54 @@
+# Pipeline de Integração Contínua
+# Executa a cada push em qualquer branch, garantindo que os testes
+# unitários passem antes de qualquer merge.
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout: baixa o código do repositório para o runner.
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Ambiente: instala o .NET 9 SDK no runner.
+      - name: Configurar .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      # 3. Dependências: restaura os pacotes NuGet do projeto de testes
+      #    (o projeto principal é restaurado automaticamente por ser referenciado).
+      - name: Restaurar dependências
+        run: dotnet restore TestesUnitarios/TestesUnitarios.csproj
+
+      # 4. Build: compila a solução em modo Release para validar que não há
+      #    erros de compilação antes de rodar os testes.
+      - name: Build
+        run: dotnet build TestesUnitarios/TestesUnitarios.csproj --no-restore -c Release
+
+      # 5. Testes: executa os testes unitários e coleta dados de cobertura
+      #    no formato Cobertura (compatível com a maioria das ferramentas de CI).
+      - name: Executar testes com cobertura
+        run: >
+          dotnet test TestesUnitarios/TestesUnitarios.csproj
+          --no-build -c Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage-results
+
+      # 6. Artefato (etapa adicional): publica o relatório de cobertura como
+      #    artefato do workflow, disponível para download na interface do GitHub Actions.
+      - name: Publicar relatório de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-de-testes
+          path: ./coverage-results
+          retention-days: 7
